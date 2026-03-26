@@ -40,7 +40,7 @@ public class Docente : Persona
 
     public override string ObtenerInfo()
     {
-        return $"Docente: {Nombre} - Departamento: {Departamento}";
+        return ($"Docente: {Nombre} + Departamento: {Departamento}");
     }
 }
 
