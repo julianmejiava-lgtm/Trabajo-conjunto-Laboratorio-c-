@@ -1,0 +1,299 @@
+using System;
+using System.Collections.Generic;
+
+public interface IPersona
+{
+    int Cedula { get; set; }
+    string Nombre { get; set; }
+    string Email { get; set; }
+    string ObtenerInfo();
+}
+
+public abstract class Persona : IPersona
+{
+    public int Cedula { get; set; }
+    public string Nombre { get; set; }
+    public string Email { get; set; }
+    public DateTime FechaNacimiento { get; set; }
+    public string Telefono { get; set; }
+
+    public abstract string ObtenerInfo();
+}
+
+public class Estudiante : Persona
+{
+    public string Programa { get; set; }
+    public int Semestre { get; set; }
+    public List<Inscripcion> Inscripciones { get; set; } = new List<Inscripcion>();
+
+    public override string ObtenerInfo()
+    {
+        return $"Estudiante: {Nombre} - Programa: {Programa} - Semestre: {Semestre}";
+    }
+}
+
+public class Docente : Persona
+{
+    public string Titulo { get; set; }
+    public string Departamento { get; set; }
+    public List<Materia> MateriasAsignadas { get; set; } = new List<Materia>();
+
+    public override string ObtenerInfo()
+    {
+        return $"Docente: {Nombre} - Departamento: {Departamento}";
+    }
+}
+
+public class Materia
+{
+    public int Codigo { get; set; }
+    public string Nombre { get; set; }
+    public int Creditos { get; set; }
+    public int Semestre { get; set; }
+    public int CupoMaximo { get; set; }
+    public Docente DocenteResponsable { get; set; }
+
+    public List<Inscripcion> Inscritos { get; set; } = new List<Inscripcion>();
+}
+
+public class Inscripcion
+{
+    public Estudiante Estudiante { get; set; }
+    public Materia Materia { get; set; }
+    public DateTime FechaInscripcion { get; set; }
+    public string Estado { get; set; }
+}
+
+public class Calificacion
+{
+    public Inscripcion Inscripcion { get; set; }
+    public double Nota1 { get; set; }
+    public double Nota2 { get; set; }
+    public double Nota3 { get; set; }
+    public double PromedioFinal { get; set; }
+    public string Estado { get; set; }
+
+    public void Calcular()
+    {
+        PromedioFinal = (Nota1 + Nota2 + Nota3) / 3;
+        Estado = PromedioFinal >= 3 ? "Aprobado" : "Reprobado";
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<Estudiante> estudiantes = new List<Estudiante>();
+        List<Docente> docentes = new List<Docente>();
+        List<Materia> materias = new List<Materia>();
+        List<Inscripcion> inscripciones = new List<Inscripcion>();
+        List<Calificacion> calificaciones = new List<Calificacion>();
+
+        int opcion;
+
+        do
+        {
+            Console.WriteLine("\n===== MENU =====");
+            Console.WriteLine("1. Registrar Estudiante");
+            Console.WriteLine("2. Registrar Docente");
+            Console.WriteLine("3. Registrar Materia");
+            Console.WriteLine("4. Inscribir Estudiante");
+            Console.WriteLine("5. Registrar Calificaciones");
+            Console.WriteLine("6. Reportes");
+            Console.WriteLine("0. Salir");
+            Console.Write("Opcion: ");
+            opcion = int.Parse(Console.ReadLine());
+
+            switch (opcion)
+            {
+                case 1:
+                    Estudiante e = new Estudiante();
+
+                    Console.Write("Cedula: ");
+                    e.Cedula = int.Parse(Console.ReadLine());
+
+                    Console.Write("Nombre: ");
+                    e.Nombre = Console.ReadLine();
+
+                    Console.Write("Email: ");
+                    e.Email = Console.ReadLine();
+
+                    Console.Write("Programa: ");
+                    e.Programa = Console.ReadLine();
+
+                    Console.Write("Semestre: ");
+                    e.Semestre = int.Parse(Console.ReadLine());
+
+                    estudiantes.Add(e);
+                    break;
+
+                case 2:
+                    Docente d = new Docente();
+
+                    Console.Write("Cedula: ");
+                    d.Cedula = int.Parse(Console.ReadLine());
+
+                    Console.Write("Nombre: ");
+                    d.Nombre = Console.ReadLine();
+
+                    Console.Write("Email: ");
+                    d.Email = Console.ReadLine();
+
+                    Console.Write("Titulo: ");
+                    d.Titulo = Console.ReadLine();
+
+                    Console.Write("Departamento: ");
+                    d.Departamento = Console.ReadLine();
+
+                    Console.Write("Cuantas materias asignar?: ");
+                    int cant = int.Parse(Console.ReadLine());
+
+                    for (int i = 0; i < cant; i++)
+                    {
+                        Console.Write("Codigo de materia: ");
+                        int cod = int.Parse(Console.ReadLine());
+
+                        Materia mat = materias.Find(x => x.Codigo == cod);
+
+                        if (mat != null)
+                        {
+                            d.MateriasAsignadas.Add(mat);
+                            mat.DocenteResponsable = d;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Materia no encontrada");
+                        }
+                    }
+
+                    docentes.Add(d);
+                    break;
+
+                case 3:
+                    Materia m = new Materia();
+
+                    Console.Write("Codigo: ");
+                    m.Codigo = int.Parse(Console.ReadLine());
+
+                    Console.Write("Nombre: ");
+                    m.Nombre = Console.ReadLine();
+
+                    Console.Write("Creditos: ");
+                    m.Creditos = int.Parse(Console.ReadLine());
+
+                    Console.Write("Semestre: ");
+                    m.Semestre = int.Parse(Console.ReadLine());
+
+                    Console.Write("Cupo maximo: ");
+                    m.CupoMaximo = int.Parse(Console.ReadLine());
+
+                    materias.Add(m);
+                    break;
+
+                case 4:
+                    Console.Write("Cedula Estudiante: ");
+                    int cedEst = int.Parse(Console.ReadLine());
+
+                    Console.Write("Codigo Materia: ");
+                    int codMat = int.Parse(Console.ReadLine());
+
+                    Estudiante est = estudiantes.Find(x => x.Cedula == cedEst);
+                    Materia mat2 = materias.Find(x => x.Codigo == codMat);
+
+                    if (est != null && mat2 != null)
+                    {
+                        if (mat2.Inscritos.Count < mat2.CupoMaximo)
+                        {
+                            Inscripcion ins = new Inscripcion
+                            {
+                                Estudiante = est,
+                                Materia = mat2,
+                                FechaInscripcion = DateTime.Now,
+                                Estado = "Activa"
+                            };
+
+                            inscripciones.Add(ins);
+                            est.Inscripciones.Add(ins);
+                            mat2.Inscritos.Add(ins);
+
+                            Console.WriteLine("Inscripcion exitosa");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Cupo lleno");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Datos invalidos");
+                    }
+                    break;
+
+                case 5:
+                    Console.Write("Cedula Estudiante: ");
+                    int cedC = int.Parse(Console.ReadLine());
+
+                    Estudiante estC = estudiantes.Find(x => x.Cedula == cedC);
+
+                    if (estC != null && estC.Inscripciones.Count > 0)
+                    {
+                        Inscripcion ins = estC.Inscripciones[0];
+
+                        Calificacion c = new Calificacion();
+                        c.Inscripcion = ins;
+
+                        Console.Write("Nota1: ");
+                        c.Nota1 = double.Parse(Console.ReadLine());
+
+                        Console.Write("Nota2: ");
+                        c.Nota2 = double.Parse(Console.ReadLine());
+
+                        Console.Write("Nota3: ");
+                        c.Nota3 = double.Parse(Console.ReadLine());
+
+                        c.Calcular();
+                        calificaciones.Add(c);
+
+                        Console.WriteLine("Promedio: " + c.PromedioFinal);
+                    }
+                    else
+                    {
+                        Console.WriteLine("No tiene inscripciones");
+                    }
+                    break;
+
+                case 6:
+                    Console.WriteLine("\n--- ESTUDIANTES ---");
+                    foreach (var estu in estudiantes)
+                    {
+                        Console.WriteLine(estu.ObtenerInfo());
+                    }
+
+                    Console.WriteLine("\n--- DOCENTES Y MATERIAS ---");
+                    foreach (var doc in docentes)
+                    {
+                        Console.WriteLine(doc.ObtenerInfo());
+                        foreach (var matDoc in doc.MateriasAsignadas)
+                        {
+                            Console.WriteLine("  - " + matDoc.Nombre);
+                        }
+                    }
+
+                    Console.WriteLine("\n--- INSCRITOS POR MATERIA ---");
+                    foreach (var matx in materias)
+                    {
+                        Console.WriteLine(matx.Nombre + ": " + matx.Inscritos.Count);
+                    }
+
+                    Console.WriteLine("\n--- PROMEDIOS ---");
+                    foreach (var cal in calificaciones)
+                    {
+                        Console.WriteLine($"Est: {cal.Inscripcion.Estudiante.Nombre} Prom: {cal.PromedioFinal}");
+                    }
+                    break;
+            }
+
+        } while (opcion != 0);
+    }
+}
